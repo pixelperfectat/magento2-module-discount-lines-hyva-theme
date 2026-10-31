@@ -19,7 +19,7 @@ bin/magento setup:upgrade
 
 ## How it works
 
-- Overrides the template of the `discount` block (`Magento_Checkout::php-cart/totals/discount.phtml`) on the
+- Replaces the `discount` block (`Magento_Checkout::php-cart/totals/discount.phtml`, re-declared by the theme's `Magento_Tax` layout, so a plain template override would not win) with its own block on the
   `checkout_cart_index` page. The Hyvä cart totals are rendered client side with Alpine.js, so the lines are read from
   `segment.extension_attributes.discount_lines` of the totals data and update together with the totals. Without lines
   (module disabled, or a quote without stored lines) the original Hyvä markup (title and value) is rendered.
