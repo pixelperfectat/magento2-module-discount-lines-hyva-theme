@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="PixelPerfect_DiscountLines::css/discount-lines.css"/>
+    </head>
+    <body>
+        <referenceBlock name="discount"
+                        template="PixelPerfect_DiscountLinesHyvaTheme::php-cart/totals/discount.phtml"/>
+        <referenceContainer name="before.body.end">
+            <block name="pp.discount-lines.hyva-theme.cart-lines"
+                   template="PixelPerfect_DiscountLinesHyvaTheme::js/cart-lines.phtml"/>
+        </referenceContainer>
+    </body>
+</page>
