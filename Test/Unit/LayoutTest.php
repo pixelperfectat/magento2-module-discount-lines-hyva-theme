@@ -24,6 +24,20 @@ class LayoutTest extends TestCase
         self::assertFileExists(self::MODULE_DIR . '/view/frontend/templates/php-cart/totals/discount.phtml');
     }
 
+    public function testGiftCardSegmentGetsATotalsBlock(): void
+    {
+        $xml = simplexml_load_file(self::MODULE_DIR . '/view/frontend/layout/hyva_checkout_cart_index.xml');
+        $blocks = $xml->xpath('//referenceBlock[@name="checkout.cart.totals"]/block[@name="pp.discount-lines.gift-card"]');
+
+        self::assertCount(1, $blocks);
+        $template = (string)file_get_contents(
+            self::MODULE_DIR . '/view/frontend/templates/php-cart/totals/gift-card.phtml'
+        );
+        self::assertStringContainsString('segment.code === \'gift_card\'', $template);
+        self::assertStringContainsString('x-text="segment.title"', $template);
+        self::assertStringNotContainsString('style=', $template);
+    }
+
     public function testStylesheetAndScriptBlockAreRegistered(): void
     {
         $xml = simplexml_load_file(self::MODULE_DIR . '/view/frontend/layout/hyva_checkout_cart_index.xml');

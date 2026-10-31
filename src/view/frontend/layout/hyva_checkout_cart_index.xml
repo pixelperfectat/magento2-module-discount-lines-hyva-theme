@@ -13,6 +13,7 @@
         <referenceBlock name="discount" remove="true"/>
         <referenceBlock name="checkout.cart.totals">
             <block name="pp.discount-lines" template="PixelPerfect_DiscountLinesHyvaTheme::php-cart/totals/discount.phtml"/>
+            <block name="pp.discount-lines.gift-card" template="PixelPerfect_DiscountLinesHyvaTheme::php-cart/totals/gift-card.phtml"/>
         </referenceBlock>
         <referenceContainer name="before.body.end">
             <block name="pp.discount-lines.hyva-theme.cart-lines"
