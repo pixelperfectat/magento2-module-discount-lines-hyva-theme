@@ -27,7 +27,7 @@ use Hyva\Theme\ViewModel\HyvaCsp;
                     code: line.code ? String(line.code) : '',
                     label: String(line.label ?? ''),
                     amount: Number(line.amount) || 0,
-                    removable: line.kind === 'coupon'
+                    removable: Boolean(line.code) && (line.kind === 'coupon' || line.kind === 'gift')
                 }));
             },
             saved(segment) {
@@ -37,7 +37,7 @@ use Hyva\Theme\ViewModel\HyvaCsp;
                 return cents / 100;
             },
             savedText(segment) {
-                return hyva.formatPrice(-this.saved(segment));
+                return hyva.formatPrice(this.saved(segment));
             },
             hasCoupon(segment) {
                 return this.lines(segment).some((line) => line.removable);

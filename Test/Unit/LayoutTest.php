@@ -71,6 +71,34 @@ class LayoutTest extends TestCase
         self::assertStringNotContainsString('style=', $template);
     }
 
+    public function testGiftCardTemplateProvidesTheGiftAndFreeTexts(): void
+    {
+        $template = (string)file_get_contents(
+            self::MODULE_DIR . '/view/frontend/templates/php-cart/totals/gift-card.phtml'
+        );
+
+        self::assertStringContainsString('data-label-gift="', $template);
+        self::assertStringContainsString('data-label-free="', $template);
+    }
+
+    public function testYouSaveIsAPositiveAmount(): void
+    {
+        $script = (string)file_get_contents(self::MODULE_DIR . '/view/frontend/templates/js/cart-lines.phtml');
+
+        self::assertStringContainsString('hyva.formatPrice(this.saved(segment))', $script);
+        self::assertStringNotContainsString('formatPrice(-this.saved', $script);
+    }
+
+    public function testOnlyCouponAndGiftLinesWithACodeAreRemovable(): void
+    {
+        $script = (string)file_get_contents(self::MODULE_DIR . '/view/frontend/templates/js/cart-lines.phtml');
+
+        self::assertStringContainsString(
+            "removable: Boolean(line.code) && (line.kind === 'coupon' || line.kind === 'gift')",
+            $script
+        );
+    }
+
     public function testGermanTranslationCoversEveryString(): void
     {
         $read = static fn (string $f): array => array_column(

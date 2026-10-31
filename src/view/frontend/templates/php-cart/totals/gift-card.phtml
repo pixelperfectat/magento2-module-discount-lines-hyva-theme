@@ -18,6 +18,8 @@ $enabled = $discountLines->isEnabled();
 <?php /* The theme renders no row for the gift_card segment; lines (filled by a gift card adapter) show as chips. */ ?>
 <template x-if="segment.code === 'gift_card'">
     <div x-data="ppDiscountLinesCart"
+         data-label-gift="<?= $escaper->escapeHtmlAttr(__('Gift')) ?>"
+         data-label-free="<?= $escaper->escapeHtmlAttr(__('Free')) ?>"
          data-icon-default="<?= $escaper->escapeUrl($discountLines->getIconUrl('')) ?>"
          data-icon-gift_card="<?= $escaper->escapeUrl($discountLines->getIconUrl('gift_card')) ?>"
     >
