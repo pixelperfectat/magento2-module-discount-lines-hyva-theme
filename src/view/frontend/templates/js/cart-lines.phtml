@@ -31,9 +31,10 @@ use Hyva\Theme\ViewModel\HyvaCsp;
                 }));
             },
             saved(segment) {
-                const sum = this.lines(segment).reduce((total, line) => total + line.amount, 0);
+                // Sum in integer cents to avoid float drift, then convert back.
+                const cents = this.lines(segment).reduce((total, line) => total + Math.round(line.amount * 100), 0);
 
-                return Math.round((sum + Number.EPSILON) * 100) / 100;
+                return cents / 100;
             },
             savedText(segment) {
                 return hyva.formatPrice(-this.saved(segment));

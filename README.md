@@ -23,6 +23,9 @@ bin/magento setup:upgrade
   `checkout_cart_index` page. The Hyvä cart totals are rendered client side with Alpine.js, so the lines are read from
   `segment.extension_attributes.discount_lines` of the totals data and update together with the totals. Without lines
   (module disabled, or a quote without stored lines) the original Hyvä markup (title and value) is rendered.
+- The layout lives in the `hyva_checkout_cart_index` handle, which Hyvä's theme module only adds when a Hyvä theme is
+  active, so other themes of the same install keep their own cart. Because the theme's `discount` block is removed
+  and replaced, `referenceBlock name="discount"` customisations in your theme must target `pp.discount-lines` instead.
 - The "You save" sum of variant C is calculated in the browser from the lines, rounded to cents, and formatted with
   `hyva.formatPrice`.
 - Loads the base stylesheet `PixelPerfect_DiscountLines::css/discount-lines.css`. Colours come from the CSS custom

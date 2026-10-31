@@ -12,7 +12,7 @@ class LayoutTest extends TestCase
 
     public function testLayoutOverridesTheCoreDiscountTemplateOnTheCartPage(): void
     {
-        $xml = simplexml_load_file(self::MODULE_DIR . '/view/frontend/layout/checkout_cart_index.xml');
+        $xml = simplexml_load_file(self::MODULE_DIR . '/view/frontend/layout/hyva_checkout_cart_index.xml');
         self::assertCount(1, $xml->xpath('//referenceBlock[@name="discount"][@remove="true"]'));
         $blocks = $xml->xpath('//referenceBlock[@name="checkout.cart.totals"]/block[@name="pp.discount-lines"]');
 
@@ -26,7 +26,7 @@ class LayoutTest extends TestCase
 
     public function testStylesheetAndScriptBlockAreRegistered(): void
     {
-        $xml = simplexml_load_file(self::MODULE_DIR . '/view/frontend/layout/checkout_cart_index.xml');
+        $xml = simplexml_load_file(self::MODULE_DIR . '/view/frontend/layout/hyva_checkout_cart_index.xml');
 
         self::assertCount(1, $xml->xpath('//css[@src="PixelPerfect_DiscountLines::css/discount-lines.css"]'));
         self::assertCount(
