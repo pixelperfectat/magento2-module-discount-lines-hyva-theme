@@ -62,5 +62,10 @@
     "suggest": {
         "hyva-themes/magento2-default-theme": "Hyvä default theme (free, not on Packagist) provides the cart totals this module renders into",
         "hyva-themes/magento2-theme-module": "Hyvä theme module (free, not on Packagist), required by the default theme"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "1.0.x-dev"
+        }
     }
 }
