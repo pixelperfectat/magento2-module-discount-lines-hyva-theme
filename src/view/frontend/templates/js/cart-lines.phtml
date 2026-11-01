@@ -1,0 +1,90 @@
+<?php
+
+declare(strict_types=1);
+
+use Hyva\Theme\ViewModel\HyvaCsp;
+
+/** @var HyvaCsp $hyvaCsp */
+?>
+<script>
+    /*
+     * Discount lines of the cart totals. The totals are rendered client side, so the lines are read from
+     * segment.extension_attributes.discount_lines (numbers may arrive as floats or strings) and the "You save" sum
+     * is calculated here, rounded to cents. Coupon removal posts the cart coupon form action (remove=1) through
+     * hyva.postCart, which swaps the cart content. Texts and icon URLs come from data attributes on the root element.
+     */
+    function ppDiscountLinesCart() {
+        return {
+            busy: false,
+            lines(segment) {
+                const raw = segment?.extension_attributes?.discount_lines;
+                if (!Array.isArray(raw)) {
+                    return [];
+                }
+
+                return raw.map((line) => ({
+                    kind: String(line.kind ?? ''),
+                    code: line.code ? String(line.code) : '',
+                    label: String(line.label ?? ''),
+                    amount: Number(line.amount) || 0,
+                    removable: Boolean(line.code) && (line.kind === 'coupon' || line.kind === 'gift')
+                }));
+            },
+            saved(segment) {
+                // Sum in integer cents to avoid float drift, then convert back.
+                const cents = this.lines(segment).reduce((total, line) => total + Math.round(line.amount * 100), 0);
+
+                return cents / 100;
+            },
+            savedText(segment) {
+                return hyva.formatPrice(this.saved(segment));
+            },
+            hasCoupon(segment) {
+                return this.lines(segment).some((line) => line.removable);
+            },
+            firstCoupon(segment) {
+                return this.lines(segment).find((line) => line.removable) ?? null;
+            },
+            amountText(line) {
+                if (line.amount > 0) {
+                    return hyva.formatPrice(-line.amount);
+                }
+
+                return line.kind === 'free_shipping' ? this.$root.dataset.labelFree : this.$root.dataset.labelGift;
+            },
+            iconUrl(kind) {
+                return this.$root.getAttribute('data-icon-' + kind) || this.$root.dataset.iconDefault;
+            },
+            removeLabel(line) {
+                return (this.$root.dataset.removeLabel || '').replace('%1', line ? line.label : '');
+            },
+            remove(line) {
+                if (!line || this.busy) {
+                    return;
+                }
+                this.busy = true;
+                const form = document.createElement('form');
+                form.method = 'post';
+                form.action = this.$root.dataset.removeUrl;
+                [['coupon_code', line.code], ['remove', '1']].forEach(([name, value]) => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = name;
+                    input.value = value;
+                    form.appendChild(input);
+                });
+                hyva.postCart(form);
+            },
+            onCartLoading(event) {
+                if (!event.detail?.isLoading) {
+                    this.busy = false;
+                }
+            }
+        };
+    }
+
+    window.addEventListener('alpine:init', () => {
+        Alpine.data('ppDiscountLinesCart', ppDiscountLinesCart)
+    }, { once: true })
+</script>
+<?php $hyvaCsp->registerInlineScript() ?>

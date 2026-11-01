@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="PixelPerfect_DiscountLines::css/discount-lines.css"/>
+    </head>
+    <body>
+        <!--
+            The theme's Magento_Tax layout re-declares the "discount" block with its own template after all module
+            layouts, so a template override cannot win. Remove it and add our block next to the other totals instead
+            (the template renders its own segment.code === 'discount' guard, and falls back to the core markup).
+        -->
+        <referenceBlock name="discount" remove="true"/>
+        <referenceBlock name="checkout.cart.totals">
+            <block name="pp.discount-lines" template="PixelPerfect_DiscountLinesHyvaTheme::php-cart/totals/discount.phtml"/>
+            <block name="pp.discount-lines.gift-card" template="PixelPerfect_DiscountLinesHyvaTheme::php-cart/totals/gift-card.phtml"/>
+        </referenceBlock>
+        <referenceContainer name="before.body.end">
+            <block name="pp.discount-lines.hyva-theme.cart-lines"
+                   template="PixelPerfect_DiscountLinesHyvaTheme::js/cart-lines.phtml"/>
+        </referenceContainer>
+    </body>
+</page>

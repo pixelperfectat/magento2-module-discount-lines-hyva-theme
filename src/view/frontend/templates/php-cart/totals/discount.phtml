@@ -1,0 +1,115 @@
+<?php
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use PixelPerfect\DiscountLines\ViewModel\DiscountLines;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var DiscountLines $discountLines */
+$discountLines = $viewModels->require(DiscountLines::class);
+
+if (!$discountLines->isEnabled()) {
+    /* Same markup as the Hyvä default theme template. */
+    ?>
+<template x-if="segment.code === 'discount'">
+    <div :class="wrapperClass">
+        <div x-text="segment.title"></div>
+        <div x-text="hyva.formatPrice(segment.value)" class="justify-self-end"></div>
+    </div>
+</template>
+    <?php
+    return;
+}
+
+$variant = strtolower($discountLines->getVariant());
+$kinds = ['coupon', 'automatic', 'gift', 'free_shipping', 'gift_card'];
+$crossIcon = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"'
+    . ' stroke-linecap="round" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg>';
+$icon = '<img class="pp-dl__icon" :src="iconUrl(line.kind)" alt="" width="14" height="14" aria-hidden="true">';
+$removeButton = '<template x-if="line.removable"><button type="button" class="pp-dl__remove"'
+    . ' x-on:click="remove(line)" x-bind:disabled="busy" :aria-label="removeLabel(line)">' . $crossIcon
+    . '</button></template>';
+$chip = '<span class="pp-dl__chip" :class="\'pp-dl__chip--\' + line.kind">' . $icon
+    . '<span :class="line.removable ? \'pp-dl__code\' : \'\'" x-text="line.label"></span>'
+    . ($variant === 'c' ? '' : $removeButton) . '</span>';
+$amount = '<span class="pp-dl__amount" x-text="amountText(line)"></span>';
+?>
+<template x-if="segment.code === 'discount'">
+    <div x-data="ppDiscountLinesCart"
+         x-on:cart-is-loading.window="onCartLoading($event)"
+         data-pp-dl-variant="<?= $escaper->escapeHtmlAttr(strtoupper($variant)) ?>"
+         data-remove-url="<?= $escaper->escapeUrl($block->getUrl('checkout/cart/couponPost')) ?>"
+         data-remove-label="<?= $escaper->escapeHtmlAttr(__('Remove coupon %1')) ?>"
+         data-label-gift="<?= $escaper->escapeHtmlAttr(__('Gift')) ?>"
+         data-label-free="<?= $escaper->escapeHtmlAttr(__('Free')) ?>"
+         data-icon-default="<?= $escaper->escapeUrl($discountLines->getIconUrl('')) ?>"
+<?php foreach ($kinds as $kind): ?>
+         data-icon-<?= $escaper->escapeHtmlAttr($kind) ?>="<?= $escaper->escapeUrl($discountLines->getIconUrl($kind)) ?>"
+<?php endforeach ?>
+    >
+        <template x-if="lines(segment).length === 0">
+            <div :class="wrapperClass">
+                <div x-text="segment.title"></div>
+                <div x-text="hyva.formatPrice(segment.value)" class="justify-self-end"></div>
+            </div>
+        </template>
+        <template x-if="lines(segment).length > 0">
+            <div class="pp-dl pp-dl--<?= $escaper->escapeHtmlAttr($variant) ?> py-3 border-b border-gray-300 text-fg-secondary">
+                <template x-for="(line, index) in lines(segment)" :key="index">
+<?php if ($variant === 'a'): ?>
+                    <div class="pp-dl__line">
+                        <div class="pp-dl__label">
+                            <template x-if="line.removable">
+                                <span><?= $escaper->escapeHtml(__('Coupon')) ?></span>
+                            </template>
+                            <template x-if="line.removable">
+                                <?= /* @noEscape */ $chip ?>
+                            </template>
+                            <template x-if="!line.removable">
+                                <span class="pp-dl__label-plain"><?= /* @noEscape */ $icon ?><span x-text="line.label"></span></span>
+                            </template>
+                        </div>
+                        <?= /* @noEscape */ $amount ?>
+                    </div>
+<?php elseif ($variant === 'd'): ?>
+                    <div class="pp-dl__line">
+                        <span class="pp-dl__label">
+                            <template x-if="line.removable">
+                                <span><?= $escaper->escapeHtml(__('Coupon')) ?></span>
+                            </template>
+                            <?= /* @noEscape */ $chip ?>
+                        </span>
+                        <?= /* @noEscape */ $amount ?>
+                    </div>
+<?php else: ?>
+                    <div class="pp-dl__line">
+                        <span class="pp-dl__label"><?= /* @noEscape */ $chip ?></span>
+                        <?= /* @noEscape */ $amount ?>
+                    </div>
+<?php endif ?>
+                </template>
+<?php if ($variant === 'c'): ?>
+                <template x-if="lines(segment).length > 1 && saved(segment) > 0">
+                    <div class="pp-dl__summary">
+                        <span><?= $escaper->escapeHtml(__('You save')) ?></span>
+                        <span class="pp-dl__amount" x-text="savedText(segment)"></span>
+                    </div>
+                </template>
+                <template x-if="hasCoupon(segment)">
+                    <button type="button" class="pp-dl__remove pp-dl__remove--link"
+                            x-on:click="remove(firstCoupon(segment))" x-bind:disabled="busy"
+                            :aria-label="removeLabel(firstCoupon(segment))">
+                        <?= $escaper->escapeHtml(__('Remove coupon')) ?>
+                    </button>
+                </template>
+<?php endif ?>
+            </div>
+        </template>
+    </div>
+</template>

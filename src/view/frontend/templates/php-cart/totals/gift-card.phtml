@@ -1,0 +1,48 @@
+<?php
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use PixelPerfect\DiscountLines\ViewModel\DiscountLines;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var DiscountLines $discountLines */
+$discountLines = $viewModels->require(DiscountLines::class);
+$enabled = $discountLines->isEnabled();
+?>
+<?php /* The theme renders no row for the gift_card segment; lines (filled by a gift card adapter) show as chips. */ ?>
+<template x-if="segment.code === 'gift_card'">
+    <div x-data="ppDiscountLinesCart"
+         data-label-gift="<?= $escaper->escapeHtmlAttr(__('Gift')) ?>"
+         data-label-free="<?= $escaper->escapeHtmlAttr(__('Free')) ?>"
+         data-icon-default="<?= $escaper->escapeUrl($discountLines->getIconUrl('')) ?>"
+         data-icon-gift_card="<?= $escaper->escapeUrl($discountLines->getIconUrl('gift_card')) ?>"
+    >
+        <template x-if="<?= $enabled ? 'false' : 'true' ?> || lines(segment).length === 0">
+            <div :class="wrapperClass">
+                <div x-text="segment.title"></div>
+                <div x-text="hyva.formatPrice(segment.value)" class="justify-self-end"></div>
+            </div>
+        </template>
+        <template x-if="<?= $enabled ? 'true' : 'false' ?> && lines(segment).length > 0">
+            <div class="pp-dl pp-dl--<?= $escaper->escapeHtmlAttr(strtolower($discountLines->getVariant())) ?> py-3 border-b border-gray-300 text-fg-secondary">
+                <template x-for="(line, index) in lines(segment)" :key="index">
+                    <div class="pp-dl__line">
+                        <span class="pp-dl__label">
+                            <span class="pp-dl__chip" :class="'pp-dl__chip--' + line.kind">
+                                <img class="pp-dl__icon" :src="iconUrl(line.kind)" alt="" width="14" height="14" aria-hidden="true">
+                                <span x-text="line.label"></span>
+                            </span>
+                        </span>
+                        <span class="pp-dl__amount" x-text="amountText(line)"></span>
+                    </div>
+                </template>
+            </div>
+        </template>
+    </div>
+</template>
